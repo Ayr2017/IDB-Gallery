@@ -1,19 +1,26 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+      <div id="gallery-wrapper">
+    <Gallery />
+      </div>
+      <RemoteImages />
+    <Downloader />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Gallery from "./components/Gallery.vue";
+import Downloader from "./components/Downloader.vue";
+import RemoteImages from "./components/RemoteImages.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    Downloader,
+    Gallery,
+    RemoteImages
+  },
+};
 </script>
 
 <style lang="scss">
@@ -23,6 +30,29 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 0px;
+  border: 1px solid red;
+  display: flex;
+  flex-direction: column;
+  padding:0.5rem;
+  justify-content: space-around;
+
+  @media (max-width: 320px) {
+    flex-direction: column;
+    max-width: 320px;
+  }
+  @media (min-width: 576px) {
+    flex-direction: column;
+  }
+
+  // Medium devices (tablets, 768px and up)
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+  #gallery-wrapper {
+  overflow-x: auto;
+  display: flex;
+  flex:1 1 auto;
+}
 }
 </style>
