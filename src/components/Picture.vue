@@ -18,15 +18,14 @@ export default {
   },
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .picture {
-  display: inline-flex;
+  display: inline-block;
 
   &__content {
-    display: flex;
+    display: block;
     margin: 5px;
     object-fit: cover;
-    height: 100px;
 
     &_selected {
       box-sizing: border-box;

@@ -1,12 +1,18 @@
 <template>
-  <div id="downloader">
-    <div id="drugndrop" @dragover.prevent="dragOver" @dragleave.prevent="dragLeave" @drop="drop">
-      <h1 class="transparent">DRAG AND DROP</h1>
-      <h2 class="transparent">or</h2>
-      <h1 class="transparent">UPLOAD</h1>
+  <div class="downloader">
+    <div
+      id="drugndrop"
+      class="drugndrop"
+      @dragover.prevent="dragOver"
+      @dragleave.prevent="dragLeave"
+      @drop="drop"
+    >
+      <h1 class="op5">DRAG AND DROP</h1>
+      <h2 class="op5">or</h2>
+      <h1 class="op5">UPLOAD</h1>
     </div>
     <div class="input-group">
-      <div id="output" class="preview" style="width:100px; height:100px;">
+      <div id="output" class="preview" >
         <span class="preview__wrapper">
           <img class="preview__img" src="empty.png" alt="empty" />
         </span>
@@ -25,10 +31,10 @@
         v-if="fileType=='json'"
         :class="['btn', 'btn_success']"
         type="submit"
-        value="SAVE IMAGES"
-        @click="saveDownloadedImages"
+        value="TO GALLERY"
+        @click="toGallery"
       />
-      <input class="btn" type="submit" value="Отправить" @click="createFilename" />
+      <input class="btn" type="submit" value="Моковая" @click="createFilename" />
     </div>
   </div>
 </template>
@@ -44,7 +50,7 @@ export default {
     fileType: null,
   }),
   computed: {
-    ...mapGetters(["jsonFile"]),
+    ...mapGetters(["jsonFile","remoteState"]),
     isEmpty: {
       get() {
         if (this.uploadedFile) return true;
@@ -54,6 +60,7 @@ export default {
   },
   watch: {
     uploadedFile(n, o) {
+      console.log(n,o)
       if (n && !(n.size === o?.size && n.lastModified === o?.lastModified))
         this.shFile();
     },
@@ -68,20 +75,20 @@ export default {
     });
   },
   methods: {
-    ...mapActions(["getDatabase", "deleteRecord", "getElement", "saveElement","createFilename"]),
-    ...mapMutations(['remoteImagesTrue', 'remoteImagesFalse','fillJson','clearJson']),
-    // createFilename() {
-    //   let date = new Date().getTime();
-    //   let num = Math.floor(Math.random() * 25);
-    //   let str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    //   let filename = `img-${str[getRandomNumber()]}${str[getRandomNumber()]}${
-    //     str[getRandomNumber()]
-    //   }-${date}`;
-    //   function getRandomNumber() {
-    //     return Math.floor(Math.random() * 25);
-    //   }
-    //   return filename;
-    // },
+    ...mapActions([
+      "getDatabase",
+      "deleteRecord",
+      "getElement",
+      "getElementsAll",
+      "saveElement",
+      "createFilename",
+    ]),
+    ...mapMutations([
+      "remoteImagesTrue",
+      "remoteImagesFalse",
+      "fillJson",
+      "clearJson",
+    ]),
     saveObject() {
       this.saveElement({
         dbName: "gallery",
@@ -124,26 +131,25 @@ export default {
         this.fileType = "img";
         this.remoteImagesFalse();
       } else if (type === "application" && ext === "json") {
-            this.fileType = "json";
-            let h2 = document.createElement("H2");
-            h2.innerHTML = "JSON";
-            let node = document.getElementById("output").firstChild;
-            document.getElementById("output").insertBefore(h2, null);
-            node.parentNode.removeChild(node);
-            this.remoteImagesTrue();
-            // read json file
-            let reader = new FileReader();
-            reader.readAsText(file);
-            reader.onload = ()=>{
-                this.$store.commit('fillJson',reader.result);
-            }
-            reader.onerror = function(){
-                console.log('Error. Can not ot read json-file.');
-            }
-            
+        this.fileType = "json";
+        let h2 = document.createElement("H2");
+        h2.innerHTML = "JSON";
+        let node = document.getElementById("output").firstChild;
+        document.getElementById("output").insertBefore(h2, null);
+        node.parentNode.removeChild(node);
+        this.remoteImagesTrue();
+        // read json file
+        let reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = () => {
+          this.$store.commit("fillJson", reader.result);
+        };
+        reader.onerror = function () {
+          console.log("Error. Can not ot read json-file.");
+        };
       } else {
         this.fileType = null;
-        console.log("exeption");
+        console.log("Exeption: file type is not img or text/json");
       }
     },
     dragOver(e) {
@@ -163,75 +169,49 @@ export default {
       this.uploadedFile = dt.files[0];
       e.target.style.backgroundColor = "";
     },
-    saveDownloadedImages() {
-      console.log("click");
+    toGallery() {
+      console.log("to gallery");
+      this.clearJson();
+      this.remoteImagesFalse();
+      this.fileType = null;
+       
+      this.uploadedFile = new File([""], "filename.txt", {webkitRelativePath:'empty.png' ,type: "image/jpg", lastModified: new Date()})
+      console.log(this.uploadedFile)
+      this.getElementsAll({
+      dbName: "gallery",
+      dbVersion: "2",
+      storeName: "imageStore",
+    });
     },
   },
 };
 </script>
 
-<style lang="scss">
-#downloader {
+<style lang="scss" >
+.downloader {
   display: flex;
   flex-direction: column;
   border: 1px solid rgb(84, 97, 84);
   flex: 1 1 320px;
   justify-content: space-evenly;
-}
-
-.transparent {
-  opacity: 0.5;
-}
-
-#drugndrop {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border: 2px dashed rgba(211, 211, 211, 0.671);
-  box-sizing: border-box;
-  @media (max-width: 575px) {
-    display: none;
+  .drugndrop {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 2px dashed #d3d3d3ab;
+    box-sizing: border-box;
+    &:hover {
+      background-color: #aaaaaa48;
+    }
   }
 }
-#drugndrop:hover {
-  background-color: rgba(170, 170, 170, 0.281);
-}
+
+
 .input-group {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-.btn {
-  min-width: 100px;
-  min-height: 30px;
-  padding:5px;
-  background-color: rgb(9, 196, 253);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  margin: 5px;
-
-  &_disabled {
-    background-color: rgb(181, 187, 189);
-    cursor: not-allowed;
-  }
-  &_success {
-    background-color: rgb(8, 158, 33);
-  }
-}
-.btn:focus {
-  border: none;
-  outline: none;
-}
-.btn:hover {
-  box-shadow: 0 0 6px 1px rgba(41, 40, 40, 0.667);
-  &_disabled {
-    box-shadow: 0 0 0 0 rgba(41, 40, 40, 0);
-  }
-}
-.btn:active {
-  box-shadow: 0 0 3px 1px rgba(41, 40, 40, 0.667);
 }
 
 .file {
@@ -247,7 +227,7 @@ export default {
 }
 
 .preview {
-  // border:1px solid lightgrey;
+  display:flex;
   margin: 5px;
   &__img {
     width: 100px;
@@ -257,8 +237,7 @@ export default {
 }
 .thumb {
   object-fit: cover;
-  width: 100px;
+  max-width:120px;
+  height: 100px;
 }
-
-
 </style>

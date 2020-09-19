@@ -1,10 +1,8 @@
 <template>
   <div id="app">
-      <div id="gallery-wrapper">
-    <Gallery />
-      </div>
-      <RemoteImages />
-    <Downloader />
+    <Gallery id="gallery"/>
+    <RemoteImages  id="remote-images"/>
+    <Downloader id="downloader"/>
   </div>
 </template>
 
@@ -18,7 +16,7 @@ export default {
   components: {
     Downloader,
     Gallery,
-    RemoteImages
+    RemoteImages,
   },
 };
 </script>
@@ -34,7 +32,7 @@ export default {
   border: 1px solid red;
   display: flex;
   flex-direction: column;
-  padding:0.5rem;
+  padding: 0.5rem;
   justify-content: space-around;
 
   @media (max-width: 320px) {
@@ -49,10 +47,5 @@ export default {
   @media (min-width: 768px) {
     flex-direction: row;
   }
-  #gallery-wrapper {
-  overflow-x: auto;
-  display: flex;
-  flex:1 1 auto;
-}
 }
 </style>

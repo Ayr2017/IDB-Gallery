@@ -1,7 +1,9 @@
 export default {
     state: {
+        allElements:null,
     },
     getters: {
+        allElements:(state)=>state.allElements,
     },
     actions: {
         async getDatabase({ commit, state }, data) {
@@ -58,6 +60,20 @@ export default {
                 }
             })
         },
+        async getElementsAll({commit,dispatch}, data) {
+            let db = await dispatch('getDatabase', data)
+            return new Promise(resolve => {
+                let trans = db.transaction([data.storeName], 'readonly')
+                trans.oncomplete = () => {
+                    resolve(records)
+                }
+                
+                const store = trans.objectStore(data.storeName)
+                let records = store.getAll();
+                commit('setAllElementsIntoArray',records)
+                console.log('records', records)
+            })
+        },
         async saveElement({ dispatch }, data) {
             console.log(data.dbName, data.dbVersion)
             let db = await dispatch('getDatabase', data)
@@ -73,5 +89,8 @@ export default {
         },
     },
     mutations: {
+        setAllElementsIntoArray(state, array){
+            state.allElements = array;
+        }
     }
 }
